@@ -6,6 +6,7 @@
   "permissions": [
     "core:default",
     "opener:default",
+    "dialog:default",
     {
       "identifier": "shell:allow-execute",
       "allow": [{ "name": "gamma-launcher-v3.1", "sidecar": true }]
