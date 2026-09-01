@@ -76,6 +76,11 @@ export function gammaVersion(): Promise<string> {
   return invoke<string>("gamma_launcher_version");
 }
 
+/** Kill the currently-running command. Resolves `true` if one was terminated. */
+export function gammaCancel(): Promise<boolean> {
+  return invoke<boolean>("gamma_launcher_cancel");
+}
+
 /**
  * Run a command, streaming stdout/stderr through `onEvent` as it arrives.
  * Resolves with the aggregated output and exit status when the process ends.
