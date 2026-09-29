@@ -53,6 +53,17 @@ pub(crate) enum TextRule {
     GithubRepo,
 }
 
+impl TextRule {
+    /// Identifier the UI uses to attach format-specific helpers (e.g. suggestions).
+    pub(crate) fn id(self) -> &'static str {
+        match self {
+            TextRule::ModOrganizerTag => "modorganizer-tag",
+            TextRule::GitRevision => "git-revision",
+            TextRule::GithubRepo => "github-repo",
+        }
+    }
+}
+
 /// Kind of value an option carries.
 #[derive(Clone, Copy)]
 pub(crate) enum OptKind {
@@ -71,6 +82,13 @@ impl OptKind {
             OptKind::Bool => "boolean",
         }
     }
+
+    pub(crate) fn text_format(self) -> Option<&'static str> {
+        match self {
+            OptKind::Text(rule) => Some(rule.id()),
+            _ => None,
+        }
+    }
 }
 
 /// A single option of a command.
@@ -83,8 +101,12 @@ pub(crate) struct OptSpec {
     pub(crate) kind: OptKind,
     pub(crate) required: bool,
     pub(crate) help: &'static str,
-    /// Example / upstream default shown in an empty input.
+    /// Example shown in an empty input.
     pub(crate) placeholder: &'static str,
+    /// Initial value in the UI ("" = empty).
+    pub(crate) default: &'static str,
+    /// Longer explanation shown as a tooltip ("" = none).
+    pub(crate) info: &'static str,
 }
 
 /// A subcommand and its full option set.
@@ -105,6 +127,8 @@ const fn anomaly(rule: PathRule) -> OptSpec {
         required: true,
         help: "Path to ANOMALY directory",
         placeholder: "",
+        default: "",
+        info: "",
     }
 }
 
@@ -116,6 +140,8 @@ const fn gamma(rule: PathRule) -> OptSpec {
         required: true,
         help: "Path to GAMMA directory",
         placeholder: "",
+        default: "",
+        info: "",
     }
 }
 
@@ -127,6 +153,8 @@ const fn switch(key: &'static str, flag: &'static str, help: &'static str) -> Op
         required: false,
         help,
         placeholder: "",
+        default: "",
+        info: "",
     }
 }
 
@@ -140,6 +168,8 @@ const CACHE_DIRECTORY: OptSpec = OptSpec {
     required: false,
     help: "Path to cache directory",
     placeholder: "",
+    default: "",
+    info: "",
 };
 const ANOMALY_SKIP_VERIFY: OptSpec = switch(
     "anomalySkipVerify",
@@ -163,6 +193,12 @@ const GAMMA_SET_MOD_ORGANIZER_VERSION: OptSpec = OptSpec {
     required: false,
     help: "Set ModOrganizer Version (have to match github tags)",
     placeholder: "v2.5.2",
+    default: "v2.5.2",
+    info: "Release tag of ModOrganizer2 (github.com/ModOrganizer2/modorganizer/releases). \
+The launcher downloads releases/download/<tag>/Mod.Organizer-<version>.7z, so only tags \
+that publish that archive work.\n\n\
+v2.5.2 is gamma-launcher's built-in default and the archive `check-md5 --remove-unused` keeps.\n\
+Ignored when \"Gamma no mod organizer\" is on.",
 };
 
 /// Every command supported by the bundled `gamma-launcher` binary, in UI order.
@@ -186,6 +222,13 @@ pub(crate) static COMMANDS: &[CmdSpec] = &[
                 required: false,
                 help: "Set a custom revision for S.T.A.L.K.E.R.: G.A.M.M.A.",
                 placeholder: "commit, tag or branch",
+                default: "",
+                info: "Pins the G.A.M.M.A. modpack definition to a specific revision instead of the latest one.\n\n\
+• Downloads https://github.com/<repository>/archive/<revision>.zip — a commit hash, tag or branch.\n\
+• Writes \"Custom: <revision>\" to <GAMMA>/.Grok's Modpack Installer/revision.txt; later \
+full-installs without this option then skip definition updates. Delete that file (or pass \
+another revision) to go back to normal updates.\n\
+• Ignored when \"No def update\" is on.",
             },
             OptSpec {
                 key: "customGammaRepository",
@@ -194,6 +237,11 @@ pub(crate) static COMMANDS: &[CmdSpec] = &[
                 required: false,
                 help: "Set a custom repository for S.T.A.L.K.E.R.: G.A.M.M.A.",
                 placeholder: "Grokitach/Stalker_GAMMA",
+                default: "",
+                info: "GitHub owner/repository the G.A.M.M.A. definition is fetched from \
+(default Grokitach/Stalker_GAMMA), e.g. a fork.\n\n\
+Normal updates track its `main` branch; with \"Custom gamma definition\" the given revision \
+of this repository is used instead. Ignored when \"No def update\" is on.",
             },
             switch(
                 "noDefUpdate",
@@ -301,6 +349,8 @@ pub(crate) static COMMANDS: &[CmdSpec] = &[
                 required: true,
                 help: "Path to final install directory",
                 placeholder: "",
+                default: "",
+                info: "",
             },
         ],
     },

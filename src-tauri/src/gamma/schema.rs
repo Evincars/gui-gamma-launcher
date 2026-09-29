@@ -29,6 +29,10 @@ struct OptionDto {
     required: bool,
     description: &'static str,
     placeholder: &'static str,
+    default: &'static str,
+    info: &'static str,
+    /// Format of a text option (see `TextRule::id`), `null` otherwise.
+    format: Option<&'static str>,
 }
 
 impl From<&OptSpec> for OptionDto {
@@ -40,6 +44,9 @@ impl From<&OptSpec> for OptionDto {
             required: o.required,
             description: o.help,
             placeholder: o.placeholder,
+            default: o.default,
+            info: o.info,
+            format: o.kind.text_format(),
         }
     }
 }

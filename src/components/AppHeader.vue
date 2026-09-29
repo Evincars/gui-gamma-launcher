@@ -1,7 +1,12 @@
 <script setup lang="ts">
+import ExternalLink from "./common/ExternalLink.vue";
+import { useRequirements } from "../composables/useRequirements";
 import { useSchema } from "../composables/useSchema";
 
-const { version, schema } = useSchema();
+const UPSTREAM_URL = "https://github.com/Mord3rca/gamma-launcher";
+
+const { schema } = useSchema();
+const { version } = useRequirements();
 </script>
 
 <template>
@@ -16,6 +21,9 @@ const { version, schema } = useSchema();
     <div class="app-header__meta">
       <code v-if="schema" class="app-header__binary">{{ schema.binary }}</code>
       <span v-if="version" class="app-header__version">{{ version }}</span>
+      <ExternalLink :href="UPSTREAM_URL" title="gamma-launcher by Mord3rca — the CLI this GUI wraps">
+        by Mord3rca/gamma-launcher
+      </ExternalLink>
     </div>
   </header>
 </template>

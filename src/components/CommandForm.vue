@@ -34,6 +34,7 @@ const { running } = useRunner();
         :required="opt.required"
         :flag="opt.flag"
         :error="visibleError(opt.key)"
+        :info="opt.info || undefined"
         :badge="isSharedKey(opt.key) ? 'saved · shared' : undefined"
       >
         <OptionInput

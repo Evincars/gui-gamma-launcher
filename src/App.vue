@@ -6,14 +6,19 @@ import CommandForm from "./components/CommandForm.vue";
 import CommandPreview from "./components/CommandPreview.vue";
 import CommandSidebar from "./components/CommandSidebar.vue";
 import ConsoleOutput from "./components/ConsoleOutput.vue";
+import RequirementsPanel from "./components/RequirementsPanel.vue";
 import RunPanel from "./components/RunPanel.vue";
 import AlertBar from "./components/common/AlertBar.vue";
-import BaseButton from "./components/common/BaseButton.vue";
+import { useRequirements } from "./composables/useRequirements";
 import { useSchema } from "./composables/useSchema";
 
-const { loading, schemaError, binaryError, load, checkBinary } = useSchema();
+const { loading, schemaError, load } = useSchema();
+const { check } = useRequirements();
 
-onMounted(load);
+onMounted(() => {
+  void load();
+  void check();
+});
 </script>
 
 <template>
@@ -29,12 +34,7 @@ onMounted(load);
     <div v-else class="app__body">
       <CommandSidebar />
       <main class="app__main">
-        <AlertBar v-if="binaryError" tone="error" title="gamma-launcher cannot start">
-          <pre class="app__pre">{{ binaryError }}</pre>
-          <template #actions>
-            <BaseButton @click="checkBinary">Re-check</BaseButton>
-          </template>
-        </AlertBar>
+        <RequirementsPanel />
         <CommandForm />
         <CommandPreview />
         <RunPanel class="app__run" />
@@ -84,12 +84,5 @@ onMounted(load);
   bottom: 0;
   z-index: 1;
   box-shadow: 0 -8px 16px var(--bg);
-}
-
-.app__pre {
-  margin: 4px 0 0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  white-space: pre-wrap;
 }
 </style>

@@ -19,6 +19,12 @@ export interface GammaOption {
   description: string;
   /** Example / upstream default ("" if none). */
   placeholder: string;
+  /** Initial value ("" if none). */
+  default: string;
+  /** Longer explanation for a tooltip ("" if none). */
+  info: string;
+  /** Format of a text option, e.g. `modorganizer-tag`; `null` otherwise. */
+  format: string | null;
 }
 
 export interface GammaCommand {
@@ -67,6 +73,23 @@ export interface GammaRunResult {
   success: boolean;
 }
 
+export type RequirementStatus = "ok" | "warning" | "error";
+
+export interface Requirement {
+  id: string;
+  label: string;
+  status: RequirementStatus;
+  detail: string;
+  /** How to fix it; only set when not ok. */
+  hint: string | null;
+}
+
+export interface Requirements {
+  /** `gamma-launcher --version`, `null` if it can't start. */
+  version: string | null;
+  checks: Requirement[];
+}
+
 /** Full description of every command and option. */
 export function gammaSchema(): Promise<GammaSchema> {
   return invoke<GammaSchema>("gamma_launcher_schema");
@@ -77,9 +100,9 @@ export function gammaValidate(request: GammaRunRequest): Promise<GammaValidation
   return invoke<GammaValidation>("gamma_launcher_validate", { request });
 }
 
-/** `gamma-launcher --version`; rejects with a readable reason if the binary can't start. */
-export function gammaVersion(): Promise<string> {
-  return invoke<string>("gamma_launcher_version");
+/** Host dependency checks (launcher, libunrar, 7z, git, certificates, TMPDIR space). */
+export function gammaRequirements(): Promise<Requirements> {
+  return invoke<Requirements>("gamma_launcher_requirements");
 }
 
 /** Kill the currently-running command. Resolves `true` if one was terminated. */

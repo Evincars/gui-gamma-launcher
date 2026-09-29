@@ -5,11 +5,13 @@
 //! - [`mapper`]   — `(command, options)` → argv
 //! - [`schema`]   — spec → JSON for the UI
 //! - [`sidecar`]  — how the bundled binary is invoked
+//! - [`requirements`] — host dependency checks (libunrar, 7z, git, certs, TMPDIR)
 //! - [`runner`]   — process lifecycle & output streaming
 //! - [`commands`] — the Tauri commands the frontend calls
 
 pub mod commands;
 mod mapper;
+mod requirements;
 mod runner;
 mod schema;
 mod sidecar;

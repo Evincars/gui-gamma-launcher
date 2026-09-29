@@ -34,7 +34,7 @@ const selectedCommand = computed<GammaCommand | null>(
 function defaultsFor(cmd: GammaCommand): OptionValues {
   const out: OptionValues = {};
   for (const o of cmd.options) {
-    if (!isSharedKey(o.key)) out[o.key] = o.type === "boolean" ? false : "";
+    if (!isSharedKey(o.key)) out[o.key] = o.type === "boolean" ? false : o.default;
   }
   return out;
 }

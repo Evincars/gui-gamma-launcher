@@ -6,6 +6,7 @@ use tauri::ipc::Channel;
 use tauri::{AppHandle, State};
 
 use super::mapper::{build_args, shell_quote};
+use super::requirements::{self, Requirements};
 use super::runner::{self, ActiveRun, RunEvent, RunResult};
 use super::schema::{self, Schema};
 use super::sidecar;
@@ -54,20 +55,10 @@ pub fn gamma_launcher_validate(request: RunRequest) -> Validation {
     }
 }
 
-/// `gamma-launcher --version`; doubles as a health check of the binary.
+/// Host dependency checks, including whether the launcher itself starts.
 #[tauri::command]
-pub async fn gamma_launcher_version(app: AppHandle) -> Result<String, String> {
-    let output = sidecar::command(&app)?
-        .arg("--version")
-        .output()
-        .await
-        .map_err(|e| e.to_string())?;
-
-    if output.status.success() {
-        Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
-    } else {
-        Err(sidecar::failure_reason(&String::from_utf8_lossy(&output.stderr)))
-    }
+pub async fn gamma_launcher_requirements(app: AppHandle) -> Requirements {
+    requirements::check(&app).await
 }
 
 /// Execute a command, streaming stdout/stderr through `on_event`.

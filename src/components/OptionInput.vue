@@ -4,6 +4,7 @@ import { computed } from "vue";
 import BaseTextField from "./common/BaseTextField.vue";
 import BaseToggle from "./common/BaseToggle.vue";
 import PathField from "./common/PathField.vue";
+import ModOrganizerVersionInput from "./ModOrganizerVersionInput.vue";
 import type { GammaOption, GammaOptionValue } from "../lib/gammaLauncher";
 import { humanizeKey } from "../utils/format";
 
@@ -37,6 +38,16 @@ const text = computed(() => (typeof props.modelValue === "string" ? props.modelV
     :id="id"
     :model-value="modelValue === true"
     :disabled="disabled"
+    @update:model-value="emit('update:modelValue', $event)"
+  />
+  <ModOrganizerVersionInput
+    v-else-if="option.format === 'modorganizer-tag'"
+    :id="id"
+    :model-value="text"
+    :placeholder="option.placeholder"
+    :default-tag="option.default || undefined"
+    :disabled="disabled"
+    :invalid="invalid"
     @update:model-value="emit('update:modelValue', $event)"
   />
   <BaseTextField

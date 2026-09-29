@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import BaseIcon from "./BaseIcon.vue";
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     tone?: "error" | "warning" | "info";
     title?: string;
@@ -10,9 +10,6 @@ const props = withDefaults(
   }>(),
   { tone: "error", title: undefined, dense: false },
 );
-
-const ICONS = { error: "✖", warning: "⚠", info: "ℹ" } as const;
-const icon = computed(() => ICONS[props.tone]);
 </script>
 
 <template>
@@ -20,7 +17,7 @@ const icon = computed(() => ICONS[props.tone]);
     :class="['alert', `alert--${tone}`, { 'alert--dense': dense }]"
     :role="dense ? undefined : tone === 'error' ? 'alert' : 'status'"
   >
-    <span class="alert__icon" aria-hidden="true">{{ icon }}</span>
+    <BaseIcon class="alert__icon" :name="tone" />
     <div class="alert__body">
       <strong v-if="title" class="alert__title">{{ title }}</strong>
       <div class="alert__content"><slot /></div>
@@ -67,9 +64,8 @@ const icon = computed(() => ICONS[props.tone]);
 }
 
 .alert__icon {
-  flex-shrink: 0;
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: 14px;
+  margin-top: 1px;
 }
 
 .alert__body {

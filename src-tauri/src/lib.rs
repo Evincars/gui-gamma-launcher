@@ -23,7 +23,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             gamma::commands::gamma_launcher_schema,
             gamma::commands::gamma_launcher_validate,
-            gamma::commands::gamma_launcher_version,
+            gamma::commands::gamma_launcher_requirements,
             gamma::commands::gamma_launcher_run,
             gamma::commands::gamma_launcher_cancel,
         ])

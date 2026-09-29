@@ -18,7 +18,22 @@ pub(crate) fn command(app: &AppHandle) -> Result<Command, String> {
         .env("PYTHONUNBUFFERED", "1"))
 }
 
-const UNRAR_HINT: &str = "gamma-launcher needs the unrar library (libunrar), which was not found.
+/// `gamma-launcher --version`; the error is a readable reason if the binary can't start.
+pub(crate) async fn version(app: &AppHandle) -> Result<String, String> {
+    let output = command(app)?
+        .arg("--version")
+        .output()
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if output.status.success() {
+        Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
+    } else {
+        Err(failure_reason(&String::from_utf8_lossy(&output.stderr)))
+    }
+}
+
+pub(crate) const UNRAR_HINT: &str = "gamma-launcher needs the unrar library (libunrar), which was not found.
 Install it, then try again:
   • Fedora (RPM Fusion non-free): sudo dnf install libunrar
   • Ubuntu: sudo apt install libunrar5t64

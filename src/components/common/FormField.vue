@@ -2,6 +2,7 @@
 import { useId } from "vue";
 
 import AlertBar from "./AlertBar.vue";
+import InfoTip from "./InfoTip.vue";
 
 defineProps<{
   label: string;
@@ -12,6 +13,8 @@ defineProps<{
   error?: string;
   /** Small note next to the label, e.g. "saved". */
   badge?: string;
+  /** Longer explanation shown in a hover tooltip. */
+  info?: string;
 }>();
 
 defineSlots<{ default(props: { id: string; invalid: boolean }): unknown }>();
@@ -22,11 +25,14 @@ const id = useId();
 <template>
   <div :class="['field', { 'field--invalid': error }]">
     <div class="field__head">
-      <label class="field__label" :for="id">
-        {{ label }}
-        <span v-if="required" class="field__req" title="Required">*</span>
-        <span v-if="badge" class="field__badge">{{ badge }}</span>
-      </label>
+      <span class="field__title">
+        <label class="field__label" :for="id">
+          {{ label }}
+          <span v-if="required" class="field__req" title="Required">*</span>
+          <span v-if="badge" class="field__badge">{{ badge }}</span>
+        </label>
+        <InfoTip v-if="info" :text="info" :label="`About ${label}`" />
+      </span>
       <code v-if="flag" class="field__flag">{{ flag }}</code>
     </div>
     <p v-if="description" class="field__desc">{{ description }}</p>
@@ -54,6 +60,12 @@ const id = useId();
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
+}
+
+.field__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .field__label {
