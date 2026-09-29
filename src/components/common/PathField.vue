@@ -7,10 +7,21 @@ import BaseTextField from "./BaseTextField.vue";
 const props = withDefaults(
   defineProps<{
     modelValue: string;
+    /** Forwarded to the text input so a `<label for>` can target it. */
+    id?: string;
     disabled?: boolean;
+    invalid?: boolean;
+    /** Used in the folder picker title. */
     label?: string;
+    placeholder?: string;
   }>(),
-  { disabled: false, label: "directory" },
+  {
+    id: undefined,
+    disabled: false,
+    invalid: false,
+    label: "directory",
+    placeholder: "/path/to/directory",
+  },
 );
 
 const emit = defineEmits<{ (e: "update:modelValue", value: string): void }>();
@@ -29,10 +40,12 @@ async function browse() {
 <template>
   <div class="path-field">
     <BaseTextField
+      :id="id"
       :model-value="modelValue"
       :disabled="disabled"
+      :invalid="invalid"
+      :placeholder="placeholder"
       monospace
-      placeholder="/path/to/directory"
       @update:model-value="emit('update:modelValue', $event)"
     />
     <BaseButton :disabled="disabled" @click="browse">Browse…</BaseButton>
@@ -47,5 +60,6 @@ async function browse() {
 }
 .path-field > :first-child {
   flex: 1;
+  min-width: 0;
 }
 </style>

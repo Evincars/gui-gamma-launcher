@@ -2,9 +2,10 @@
 import { nextTick, ref, watch } from "vue";
 
 import BaseButton from "./common/BaseButton.vue";
-import { useGammaLauncher } from "../composables/useGammaLauncher";
+import PanelHeader from "./common/PanelHeader.vue";
+import { useRunner } from "../composables/useRunner";
 
-const { consoleLines, running, clearConsole } = useGammaLauncher();
+const { consoleLines, running, clearConsole } = useRunner();
 
 const scroller = ref<HTMLElement | null>(null);
 const stickToBottom = ref(true);
@@ -16,7 +17,7 @@ function onScroll() {
 }
 
 watch(
-  () => consoleLines.value.length,
+  () => consoleLines.value[consoleLines.value.length - 1]?.id,
   async () => {
     if (!stickToBottom.value) return;
     await nextTick();
@@ -28,13 +29,12 @@ watch(
 
 <template>
   <section class="console">
-    <div class="console__head">
-      <span class="console__title">
-        Output
+    <PanelHeader title="Output">
+      <template #badge>
         <span v-if="running" class="console__live">live</span>
-      </span>
+      </template>
       <BaseButton :disabled="!consoleLines.length" @click="clearConsole">Clear</BaseButton>
-    </div>
+    </PanelHeader>
 
     <div ref="scroller" class="console__body" @scroll="onScroll">
       <p v-if="!consoleLines.length" class="console__empty">
@@ -56,24 +56,6 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 0;
-  flex: 1;
-}
-
-.console__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.console__title {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-faint);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .console__live {
@@ -85,9 +67,9 @@ watch(
   letter-spacing: 0.06em;
 }
 
+/* Own scroll area with a fixed height, so the page itself can scroll past it. */
 .console__body {
-  flex: 1;
-  min-height: 160px;
+  height: clamp(220px, 45vh, 560px);
   overflow-y: auto;
   padding: 12px 14px;
   border-radius: var(--radius-sm);
@@ -113,6 +95,10 @@ watch(
 }
 .console__line--stderr {
   color: var(--stream-stderr);
+}
+.console__line--error {
+  color: var(--danger-hover);
+  font-weight: 600;
 }
 .console__line--meta {
   color: var(--stream-meta);

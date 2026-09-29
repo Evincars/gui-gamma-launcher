@@ -1,15 +1,25 @@
-/** `anomalySkipVerify` -> `Anomaly skip verify` */
-export function humanizeKey(key: string): string {
-  const spaced = key
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replace(/[-_]+/g, " ")
-    .trim()
-    .toLowerCase();
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+const ACRONYMS: Record<string, string> = { md5: "MD5", usvfs: "USVFS" };
+
+function sentenceCase(words: string): string {
+  const out = words
+    .toLowerCase()
+    .split(" ")
+    .map((w) => ACRONYMS[w] ?? w)
+    .join(" ");
+  return out.charAt(0).toUpperCase() + out.slice(1);
 }
 
-/** `full-install` -> `Full install` */
+/** `anomalySkipVerify` -> `Anomaly skip verify` */
+export function humanizeKey(key: string): string {
+  return sentenceCase(
+    key
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .replace(/[-_]+/g, " ")
+      .trim(),
+  );
+}
+
+/** `check-md5` -> `Check MD5` */
 export function humanizeCommand(name: string): string {
-  const spaced = name.replace(/[-_]+/g, " ");
-  return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+  return sentenceCase(name.replace(/[-_]+/g, " ").trim());
 }

@@ -67,7 +67,7 @@ defineEmits<{ (e: "click", ev: MouseEvent): void }>();
   color: var(--danger);
 }
 .btn--danger:hover:not(:disabled) {
-  background: rgba(240, 96, 60, 0.12);
+  background: var(--danger-soft);
   border-color: var(--danger-hover);
   color: var(--danger-hover);
 }

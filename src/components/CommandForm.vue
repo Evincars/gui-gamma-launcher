@@ -1,21 +1,14 @@
 <script setup lang="ts">
-import { computed } from "vue";
-
 import BaseButton from "./common/BaseButton.vue";
-import BaseTextField from "./common/BaseTextField.vue";
-import BaseToggle from "./common/BaseToggle.vue";
 import FormField from "./common/FormField.vue";
-import PathField from "./common/PathField.vue";
-import { useGammaLauncher } from "../composables/useGammaLauncher";
+import OptionInput from "./OptionInput.vue";
+import { useCommandForm } from "../composables/useCommandForm";
+import { useRunner } from "../composables/useRunner";
+import { isSharedKey } from "../composables/useSharedPaths";
 import { humanizeCommand, humanizeKey } from "../utils/format";
 
-const { selectedCommand, currentValues, running, resetCommand } = useGammaLauncher();
-
-const options = computed(() => selectedCommand.value?.options ?? []);
-
-function set(key: string, value: string | boolean) {
-  currentValues.value[key] = value;
-}
+const { selectedCommand, getValue, setValue, visibleError, reset } = useCommandForm();
+const { running } = useRunner();
 </script>
 
 <template>
@@ -25,36 +18,31 @@ function set(key: string, value: string | boolean) {
         <h2>{{ humanizeCommand(selectedCommand.name) }}</h2>
         <p class="cmd-form__desc">{{ selectedCommand.description }}</p>
       </div>
-      <BaseButton :disabled="running" @click="resetCommand">Reset</BaseButton>
+      <BaseButton :disabled="running" title="Saved Anomaly / GAMMA paths are kept" @click="reset">
+        Reset options
+      </BaseButton>
     </div>
 
     <div class="cmd-form__fields">
       <FormField
-        v-for="opt in options"
+        v-for="opt in selectedCommand.options"
         :key="opt.key"
+        v-slot="{ id, invalid }"
+        :class="{ 'cmd-form__wide': opt.type !== 'boolean' }"
         :label="humanizeKey(opt.key)"
         :description="opt.description"
         :required="opt.required"
         :flag="opt.flag"
+        :error="visibleError(opt.key)"
+        :badge="isSharedKey(opt.key) ? 'saved · shared' : undefined"
       >
-        <PathField
-          v-if="opt.type === 'path'"
-          :model-value="(currentValues[opt.key] as string) ?? ''"
-          :label="humanizeKey(opt.key)"
+        <OptionInput
+          :id="id"
+          :option="opt"
+          :model-value="getValue(opt.key)"
+          :invalid="invalid"
           :disabled="running"
-          @update:model-value="set(opt.key, $event)"
-        />
-        <BaseToggle
-          v-else-if="opt.type === 'boolean'"
-          :model-value="!!currentValues[opt.key]"
-          :disabled="running"
-          @update:model-value="set(opt.key, $event)"
-        />
-        <BaseTextField
-          v-else
-          :model-value="(currentValues[opt.key] as string) ?? ''"
-          :disabled="running"
-          @update:model-value="set(opt.key, $event)"
+          @update:model-value="setValue(opt.key, $event)"
         />
       </FormField>
     </div>
@@ -85,9 +73,14 @@ function set(key: string, value: string | boolean) {
   color: var(--text-muted);
 }
 
+/* Paths / text take a full row; switches share rows to keep long forms short. */
 .cmd-form__fields {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px 20px;
+}
+
+.cmd-form__wide {
+  grid-column: 1 / -1;
 }
 </style>

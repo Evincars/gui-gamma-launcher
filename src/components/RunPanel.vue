@@ -2,32 +2,49 @@
 import { computed } from "vue";
 
 import BaseButton from "./common/BaseButton.vue";
-import { useGammaLauncher } from "../composables/useGammaLauncher";
+import { useCommandForm } from "../composables/useCommandForm";
+import { useRunner } from "../composables/useRunner";
 
-const { running, canRun, previewError, lastResult, run, cancel } = useGammaLauncher();
+const { request, submitted, issueCount, submit, validate } = useCommandForm();
+const { running, lastResult, run, cancel } = useRunner();
 
-const status = computed(() => {
-  if (running.value) return { text: "Running…", tone: "run" as const };
-  if (previewError.value) return { text: "Fix required options", tone: "warn" as const };
-  if (lastResult.value) {
-    return lastResult.value.success
-      ? { text: `Done (exit ${lastResult.value.code ?? 0})`, tone: "ok" as const }
-      : { text: `Failed (exit ${lastResult.value.code ?? "?"})`, tone: "err" as const };
+type Tone = "idle" | "run" | "ok" | "err";
+
+const status = computed<{ text: string; tone: Tone }>(() => {
+  if (running.value) return { text: "Running…", tone: "run" };
+  if (submitted.value && issueCount.value) {
+    const n = issueCount.value;
+    return { text: `Fix ${n} ${n === 1 ? "issue" : "issues"}`, tone: "err" };
   }
-  return { text: "Ready", tone: "idle" as const };
+  if (lastResult.value) {
+    const { success, code } = lastResult.value;
+    return success
+      ? { text: `Done (exit ${code ?? 0})`, tone: "ok" }
+      : { text: `Failed (exit ${code ?? "?"})`, tone: "err" };
+  }
+  return { text: "Ready", tone: "idle" };
 });
+
+async function onRun() {
+  const req = request.value;
+  const { commandLine } = await submit();
+  if (!req || !commandLine) return;
+  await run(req, commandLine);
+  // The run may have created/changed directories other commands depend on.
+  void validate();
+}
 </script>
 
 <template>
   <section class="run-panel">
-    <div class="run-panel__status" :class="`run-panel__status--${status.tone}`">
+    <div :class="['run-panel__status', `run-panel__status--${status.tone}`]" role="status">
       <span class="run-panel__dot" />
       {{ status.text }}
     </div>
 
     <div class="run-panel__actions">
       <BaseButton v-if="running" variant="danger" @click="cancel">Cancel</BaseButton>
-      <BaseButton variant="primary" :disabled="!canRun" @click="run">
+      <BaseButton variant="primary" :disabled="running || !request" @click="onRun">
         Run command
       </BaseButton>
     </div>
@@ -59,28 +76,22 @@ const status = computed(() => {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--text-faint);
+  background: currentColor;
 }
 
-.run-panel__status--run .run-panel__dot {
-  background: var(--warn);
-  animation: pulse 1s ease-in-out infinite;
+.run-panel__status--idle .run-panel__dot {
+  background: var(--text-faint);
 }
 .run-panel__status--run {
   color: var(--warn);
 }
-.run-panel__status--ok .run-panel__dot {
-  background: var(--ok);
+.run-panel__status--run .run-panel__dot {
+  animation: pulse 1s ease-in-out infinite;
 }
 .run-panel__status--ok {
   color: var(--ok);
 }
-.run-panel__status--err .run-panel__dot,
-.run-panel__status--warn .run-panel__dot {
-  background: var(--danger);
-}
-.run-panel__status--err,
-.run-panel__status--warn {
+.run-panel__status--err {
   color: var(--danger-hover);
 }
 

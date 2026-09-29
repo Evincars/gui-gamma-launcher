@@ -5,8 +5,9 @@ withDefaults(
     placeholder?: string;
     disabled?: boolean;
     monospace?: boolean;
+    invalid?: boolean;
   }>(),
-  { placeholder: "", disabled: false, monospace: false },
+  { placeholder: "", disabled: false, monospace: false, invalid: false },
 );
 
 const emit = defineEmits<{ (e: "update:modelValue", value: string): void }>();
@@ -14,12 +15,12 @@ const emit = defineEmits<{ (e: "update:modelValue", value: string): void }>();
 
 <template>
   <input
-    class="text-field"
-    :class="{ 'text-field--mono': monospace }"
+    :class="['text-field', { 'text-field--mono': monospace, 'text-field--invalid': invalid }]"
     type="text"
     :value="modelValue"
     :placeholder="placeholder"
     :disabled="disabled"
+    :aria-invalid="invalid || undefined"
     spellcheck="false"
     autocomplete="off"
     @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
@@ -35,7 +36,9 @@ const emit = defineEmits<{ (e: "update:modelValue", value: string): void }>();
   background: var(--bg-inset);
   color: var(--text);
   font-size: 13px;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 
 .text-field--mono {
@@ -50,6 +53,15 @@ const emit = defineEmits<{ (e: "update:modelValue", value: string): void }>();
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.text-field--invalid,
+.text-field--invalid:focus {
+  border-color: var(--danger);
+}
+
+.text-field--invalid:focus {
+  box-shadow: 0 0 0 3px var(--danger-soft);
 }
 
 .text-field:disabled {

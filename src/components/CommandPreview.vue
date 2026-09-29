@@ -1,36 +1,52 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
+import AlertBar from "./common/AlertBar.vue";
 import BaseButton from "./common/BaseButton.vue";
-import { useGammaLauncher } from "../composables/useGammaLauncher";
+import PanelHeader from "./common/PanelHeader.vue";
+import { useCommandForm } from "../composables/useCommandForm";
 
-const { previewText, previewError } = useGammaLauncher();
+const { validation, submitted, issueCount } = useCommandForm();
+
+const commandLine = computed(() => validation.value.commandLine);
+const showIssues = computed(
+  () => !commandLine.value && (submitted.value || validation.value.errors.length > 0),
+);
 
 const copied = ref(false);
 
 async function copy() {
-  if (!previewText.value) return;
+  if (!commandLine.value) return;
   try {
-    await navigator.clipboard.writeText(previewText.value);
+    await navigator.clipboard.writeText(commandLine.value);
     copied.value = true;
     setTimeout(() => (copied.value = false), 1200);
   } catch {
-    /* clipboard unavailable — ignore */
+    // Clipboard unavailable — nothing useful to report.
   }
 }
 </script>
 
 <template>
   <section class="preview">
-    <div class="preview__head">
-      <span class="preview__title">Command line</span>
-      <BaseButton :disabled="!previewText" @click="copy">
+    <PanelHeader title="Command line">
+      <BaseButton :disabled="!commandLine" @click="copy">
         {{ copied ? "Copied" : "Copy" }}
       </BaseButton>
-    </div>
+    </PanelHeader>
 
-    <p v-if="previewError" class="preview__error">{{ previewError }}</p>
-    <pre v-else class="preview__code"><code>{{ previewText || "…" }}</code></pre>
+    <pre v-if="commandLine" class="preview__code"><code>{{ commandLine }}</code></pre>
+    <AlertBar
+      v-else-if="showIssues"
+      tone="error"
+      :title="`${issueCount} ${issueCount === 1 ? 'issue' : 'issues'} to fix before running`"
+    >
+      <ul v-if="validation.errors.length" class="preview__list">
+        <li v-for="e in validation.errors" :key="e">{{ e }}</li>
+      </ul>
+      <span v-else>Check the highlighted fields above.</span>
+    </AlertBar>
+    <AlertBar v-else tone="info">Fill in the required fields to see the command line.</AlertBar>
   </section>
 </template>
 
@@ -39,19 +55,6 @@ async function copy() {
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.preview__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.preview__title {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-faint);
 }
 
 .preview__code {
@@ -67,13 +70,8 @@ async function copy() {
   word-break: break-all;
 }
 
-.preview__error {
-  margin: 0;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  background: rgba(240, 96, 60, 0.1);
-  border: 1px solid var(--danger);
-  color: var(--danger-hover);
-  font-size: 12px;
+.preview__list {
+  margin: 4px 0 0;
+  padding-left: 18px;
 }
 </style>

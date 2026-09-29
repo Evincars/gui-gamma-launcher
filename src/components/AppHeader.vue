@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useGammaLauncher } from "../composables/useGammaLauncher";
+import { useSchema } from "../composables/useSchema";
 
-const { version, schema } = useGammaLauncher();
+const { version, schema } = useSchema();
 </script>
 
 <template>

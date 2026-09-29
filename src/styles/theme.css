@@ -25,7 +25,9 @@
   /* Status */
   --danger: #f0603c;
   --danger-hover: #ff7458;
+  --danger-soft: rgba(240, 96, 60, 0.1);
   --warn: #e3b341;
+  --warn-soft: rgba(227, 179, 65, 0.1);
   --ok: #56d364;
 
   /* Console streams */
