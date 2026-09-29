@@ -45,6 +45,16 @@ watch(overall, (s) => (open.value = s !== "ok"), { immediate: true });
     </summary>
 
     <p v-if="checkError" class="reqs__error">{{ checkError }}</p>
+    <p v-else-if="checks.length" class="reqs__intro">
+      <template v-if="overall === 'ok'">
+        Everything the installer needs is in place — you're good to go.
+      </template>
+      <template v-else>
+        No worries — a few things on your system just need a quick setup. Follow the steps
+        under each item marked in red (required) or yellow (recommended), then press
+        <strong>Re-check</strong>. Once everything is green, the installation can run successfully.
+      </template>
+    </p>
     <ul class="reqs__list">
       <li v-for="c in checks" :key="c.id" :class="['reqs__item', `reqs__item--${c.status}`]">
         <BaseIcon :name="ICONS[c.status]" class="reqs__item-icon" />
@@ -102,6 +112,13 @@ watch(overall, (s) => (open.value = s !== "ok"), { immediate: true });
   margin: 0 12px 8px;
   color: var(--danger-hover);
   font-size: 12px;
+}
+
+.reqs__intro {
+  margin: 0 12px 6px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .reqs__list {

@@ -45,7 +45,6 @@ const text = computed(() => (typeof props.modelValue === "string" ? props.modelV
     :id="id"
     :model-value="text"
     :placeholder="option.placeholder"
-    :default-tag="option.default || undefined"
     :disabled="disabled"
     :invalid="invalid"
     @update:model-value="emit('update:modelValue', $event)"

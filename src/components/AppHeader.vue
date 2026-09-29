@@ -3,6 +3,7 @@ import ExternalLink from "./common/ExternalLink.vue";
 import { useRequirements } from "../composables/useRequirements";
 import { useSchema } from "../composables/useSchema";
 
+const AUTHOR_URL = "https://lasak.netlify.app/";
 const UPSTREAM_URL = "https://github.com/Mord3rca/gamma-launcher";
 
 const { schema } = useSchema();
@@ -19,11 +20,18 @@ const { version } = useRequirements();
       </div>
     </div>
     <div class="app-header__meta">
-      <code v-if="schema" class="app-header__binary">{{ schema.binary }}</code>
-      <span v-if="version" class="app-header__version">{{ version }}</span>
-      <ExternalLink :href="UPSTREAM_URL" title="gamma-launcher by Mord3rca — the CLI this GUI wraps">
-        by Mord3rca/gamma-launcher
-      </ExternalLink>
+      <div class="app-header__row">
+        <code v-if="schema" class="app-header__binary">{{ schema.binary }}</code>
+        <span v-if="version" class="app-header__version">{{ version }}</span>
+      </div>
+      <p class="app-header__credits">
+        Created by
+        <ExternalLink :href="AUTHOR_URL">Evincars</ExternalLink>
+        · based on
+        <ExternalLink :href="UPSTREAM_URL" title="The command-line launcher this GUI wraps">
+          Mord3rca/gamma-launcher
+        </ExternalLink>
+      </p>
     </div>
   </header>
 </template>
@@ -63,9 +71,24 @@ const { version } = useRequirements();
 
 .app-header__meta {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.app-header__row {
+  display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 11px;
+}
+
+.app-header__credits {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-faint);
 }
 
 .app-header__binary {

@@ -11,8 +11,6 @@ const props = defineProps<{
   placeholder?: string;
   disabled?: boolean;
   invalid?: boolean;
-  /** Value used when the field is reset (gamma-launcher's default). */
-  defaultTag?: string;
 }>();
 
 const emit = defineEmits<{ (e: "update:modelValue", value: string): void }>();
@@ -70,9 +68,6 @@ const unknownTag = computed(() => {
       </template>
       <template v-else-if="loadError">Could not load ModOrganizer releases from GitHub.</template>
       <template v-else>Loading ModOrganizer releases…</template>
-      <template v-if="defaultTag">
-        · gamma-launcher default: <code>{{ defaultTag }}</code>
-      </template>
     </p>
     <p v-if="unknownTag" class="mo-version__warn">
       No published release with Mod.Organizer-{{ modelValue.trim().replace(/^v/, "") }}.7z — the

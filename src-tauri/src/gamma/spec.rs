@@ -191,9 +191,9 @@ const GAMMA_SET_MOD_ORGANIZER_VERSION: OptSpec = OptSpec {
     flag: "--gamma-set-mod-organizer-version",
     kind: OptKind::Text(TextRule::ModOrganizerTag),
     required: false,
-    help: "Set ModOrganizer Version (have to match github tags)",
+    help: "Set ModOrganizer Version (have to match github tags). Not sure? Leave it empty — gamma-launcher then uses v2.5.2.",
     placeholder: "v2.5.2",
-    default: "v2.5.2",
+    default: "",
     info: "Release tag of ModOrganizer2 (github.com/ModOrganizer2/modorganizer/releases). \
 The launcher downloads releases/download/<tag>/Mod.Organizer-<version>.7z, so only tags \
 that publish that archive work.\n\n\
@@ -220,7 +220,7 @@ pub(crate) static COMMANDS: &[CmdSpec] = &[
                 flag: "--custom-gamma-definition",
                 kind: OptKind::Text(TextRule::GitRevision),
                 required: false,
-                help: "Set a custom revision for S.T.A.L.K.E.R.: G.A.M.M.A.",
+                help: "Set a custom revision for S.T.A.L.K.E.R.: G.A.M.M.A. Advanced setting — leave empty for a regular install.",
                 placeholder: "commit, tag or branch",
                 default: "",
                 info: "Pins the G.A.M.M.A. modpack definition to a specific revision instead of the latest one.\n\n\
@@ -235,7 +235,7 @@ another revision) to go back to normal updates.\n\
                 flag: "--custom-gamma-repository",
                 kind: OptKind::Text(TextRule::GithubRepo),
                 required: false,
-                help: "Set a custom repository for S.T.A.L.K.E.R.: G.A.M.M.A.",
+                help: "Set a custom repository for S.T.A.L.K.E.R.: G.A.M.M.A. Advanced setting — leave empty for a regular install.",
                 placeholder: "Grokitach/Stalker_GAMMA",
                 default: "",
                 info: "GitHub owner/repository the G.A.M.M.A. definition is fetched from \
