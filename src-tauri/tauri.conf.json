@@ -10,14 +10,7 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [
-      {
-        "title": "GUI Gamma Launcher",
-        "width": 1280,
-        "height": 900,
-        "visible": false
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": null
     }

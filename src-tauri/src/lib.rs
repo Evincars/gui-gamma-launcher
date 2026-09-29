@@ -1,8 +1,6 @@
 mod gamma;
 mod window;
 
-use tauri::Manager;
-
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -11,13 +9,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(gamma::ActiveRun::default())
         .setup(|app| {
-            if let Some(main) = app.get_webview_window("main") {
-                // Created hidden (tauri.conf.json) so the resize doesn't flicker.
-                if let Err(e) = window::fit_to_monitor(&main) {
-                    eprintln!("could not size main window: {e}");
-                }
-                main.show()?;
-            }
+            window::create_main(app.handle())?;
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
