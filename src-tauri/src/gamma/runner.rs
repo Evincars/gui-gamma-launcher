@@ -21,9 +21,21 @@ impl ActiveRun {
         self.0.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
-    /// Kill the running process. Returns `true` if there was one.
+    /// Stop the running process. Returns `true` if there was one.
     pub(crate) fn cancel(&self) -> Result<bool, String> {
-        match self.slot().take() {
+        let mut slot = self.slot();
+        #[cfg(unix)]
+        if let Some(child) = slot.as_ref() {
+            // The binary is a PyInstaller one-file bootloader: it forwards SIGTERM to the Python
+            // child, whereas SIGKILL would orphan it (and leave its /tmp/_MEI* dir behind).
+            let pid = child.pid() as libc::pid_t;
+            // SAFETY: plain syscall on a pid we spawned and have not reaped yet.
+            return match unsafe { libc::kill(pid, libc::SIGTERM) } {
+                0 => Ok(true),
+                _ => Err(std::io::Error::last_os_error().to_string()),
+            };
+        }
+        match slot.take() {
             Some(child) => child.kill().map(|_| true).map_err(|e| e.to_string()),
             None => Ok(false),
         }
