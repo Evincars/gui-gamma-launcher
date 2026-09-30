@@ -2,9 +2,12 @@
 import ExternalLink from "./common/ExternalLink.vue";
 import { useRequirements } from "../composables/useRequirements";
 import { useSchema } from "../composables/useSchema";
+import pkg from "../../package.json";
 
 const AUTHOR_URL = "https://lasak.netlify.app/";
 const UPSTREAM_URL = "https://github.com/Mord3rca/gamma-launcher";
+
+const APP_VERSION = pkg.version;
 
 const { schema } = useSchema();
 const { version } = useRequirements();
@@ -16,7 +19,10 @@ const { version } = useRequirements();
       <span class="app-header__mark">☢</span>
       <div>
         <h1>GAMMA Launcher</h1>
-        <p class="app-header__sub">S.T.A.L.K.E.R.: G.A.M.M.A. installer &amp; tools</p>
+        <p class="app-header__sub">
+          S.T.A.L.K.E.R.: G.A.M.M.A. installer &amp; tools
+          <span class="app-header__app-version">v{{ APP_VERSION }}</span>
+        </p>
       </div>
     </div>
     <div class="app-header__meta">
@@ -102,5 +108,16 @@ const { version } = useRequirements();
   background: var(--accent-soft);
   color: var(--accent);
   font-weight: 600;
+}
+
+.app-header__app-version {
+  padding: 2px 7px;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 600;
+  vertical-align: middle;
 }
 </style>
