@@ -19,6 +19,12 @@
     "active": true,
     "targets": "all",
     "externalBin": ["binaries/gamma-launcher-v3.1"],
+    "createUpdaterArtifacts": true,
+    "plugins": {
+    "updater": {
+        "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY0RTRGNTA2QTlGM0Y4QzYKUldURytQT3BCdlhrOUFacVdZT2lsaFA5YzFtYThqK3Q5akFkUWVHUU9RTDVmbTlNa3loYW80dVUK"
+      }
+    },
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
