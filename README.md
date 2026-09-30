@@ -32,11 +32,43 @@ Built with [Tauri](https://tauri.app/) + [Vue 3](https://vuejs.org/), wrapping t
   disk space) with guidance for anything missing.
 - Dark theme throughout.
 
-## Installing
+## Installation & Run
 
 Grab the latest build for your OS from the [Releases page](../../releases). Windows and Linux
 builds are published automatically (see [Releasing](#releasing-maintainers) below); there is
 currently no macOS build (see [Platform support](#platform-support)).
+
+### Linux
+
+Each release has three Linux artifacts — pick one:
+
+- **`.deb`** (Debian/Ubuntu and derivatives) — a real package, installed through your package
+  manager, with a desktop entry and icon added for you:
+  ```sh
+  sudo apt install ./gui-gamma-launcher_<version>_amd64.deb
+  ```
+- **`.rpm`** (Fedora/openSUSE and derivatives) — likewise a real package:
+  ```sh
+  sudo dnf install ./gui-gamma-launcher-<version>-1.x86_64.rpm
+  # or: sudo rpm -i ./gui-gamma-launcher-<version>-1.x86_64.rpm
+  ```
+- **`.AppImage`** — a portable build for any distro. This one isn't installed by a package
+  manager, so yes: you're just running the ELF directly. Make it executable once, then run it:
+  ```sh
+  chmod +x gui-gamma-launcher_<version>_amd64.AppImage
+  ./gui-gamma-launcher_<version>_amd64.AppImage
+  ```
+  For a menu entry / icon with AppImages, use an AppImage integration tool such as
+  [AppImageLauncher](https://github.com/TheAssassin/AppImageLauncher) or
+  [Gear Lever](https://github.com/mijorus/gearlever) — this repo doesn't set one up for you.
+
+The bundled `gamma-launcher` CLI needs `libunrar` on your system for RAR extraction (the app's
+system requirements check will tell you if it's missing); everything else it needs (7-Zip, git)
+is checked the same way.
+
+### Windows
+
+Run the `.msi` or `.exe` installer from the release and follow the prompts.
 
 ## Development
 
