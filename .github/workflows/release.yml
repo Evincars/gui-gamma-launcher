@@ -1,9 +1,15 @@
 name: 'Publish Release'
 
+# Triggered by `git tag vX.Y.Z && git push origin vX.Y.Z` (see README's "Releasing" section).
 on:
   push:
     tags:
       - 'v*'
+
+env:
+  # Upstream CLI release this GUI bundles as its sidecar. Bump alongside the
+  # `binaries/gamma-launcher-v3.1*` filenames if the upstream version changes.
+  GAMMA_LAUNCHER_VERSION: v3.1
 
 jobs:
   publish-tauri:
@@ -13,12 +19,15 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: 'macos-latest' # Pro Intel i Apple Silicon Mac
-            args: '--target universal-apple-darwin'
-          - platform: 'ubuntu-22.04' # Pro Linux
+          - platform: 'ubuntu-22.04' # Linux
             args: ''
-          - platform: 'windows-latest' # Pro Windows
+          - platform: 'windows-latest' # Windows
             args: ''
+          # macOS is not built: Mord3rca/gamma-launcher does not publish a macOS
+          # sidecar binary, so `externalBin` has nothing to bundle for it. Add a
+          # `macos-latest` entry back once `binaries/gamma-launcher-v3.1-x86_64-apple-darwin`
+          # and `-aarch64-apple-darwin` exist (built/provided yourself), and fetch
+          # them below the same way the Windows binary is fetched.
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -31,8 +40,6 @@ jobs:
 
       - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: install dependencies (ubuntu only)
         if: matrix.platform == 'ubuntu-22.04'
@@ -43,12 +50,38 @@ jobs:
       - name: install frontend dependencies
         run: npm ci
 
+      - name: ensure gamma-launcher sidecar binary
+        shell: bash
+        run: |
+          set -eu
+          mkdir -p src-tauri/binaries
+          if [ "${{ matrix.platform }}" = "windows-latest" ]; then
+            dest="src-tauri/binaries/gamma-launcher-v3.1-x86_64-pc-windows-msvc.exe"
+            asset="gamma-launcher.exe"
+          else
+            dest="src-tauri/binaries/gamma-launcher-v3.1-x86_64-unknown-linux-gnu"
+            asset="gamma-launcher"
+          fi
+          if [ -f "$dest" ]; then
+            echo "sidecar already present at $dest"
+          else
+            url="https://github.com/Mord3rca/gamma-launcher/releases/download/${GAMMA_LAUNCHER_VERSION}/${asset}"
+            echo "downloading $url"
+            curl -sL -o "$dest" "$url"
+            chmod +x "$dest" || true
+          fi
+
       - name: Build and upload release
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # Works around `linuxdeploy` failing to strip libraries built with a
+          # newer toolchain (`unknown type ... section '.relr.dyn'`), and around
+          # AppImage bundling needing FUSE that some runners don't expose.
+          NO_STRIP: true
+          APPIMAGE_EXTRACT_AND_RUN: true
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'App v__VERSION__'
